@@ -86,6 +86,55 @@ void forward_Selection(vector<vector<long double>> training_set, unsigned int nu
     cout << "with an accuracy of " << max << "%" << endl; 
 } 
 
+void backward_Selection(vector<vector<long double>> training_set, unsigned int numFeatures) { 
+    vector<unsigned int> bestFeatures(numFeatures); 
+    std::iota(bestFeatures.begin(), bestFeatures.end(), 1); 
+    vector<unsigned int> localBest = bestFeatures; 
+    float accuracy, max = 0.0; 
+    
+    for(unsigned int i = 1; i <= numFeatures; i++) {
+        float localmax = 0.0; 
+        vector<unsigned int> tmpMax; 
+        for(unsigned int j = 1; j <= numFeatures; j++) {
+            vector<vector<long double>> tmp; 
+            vector<unsigned int> tmpLocal; 
+            tmp.push_back(training_set.at(0)); 
+            tmpLocal = localBest; 
+            
+            for(unsigned int x = 0; x < tmpLocal.size(); x++) { tmp.push_back( training_set.at(tmpLocal.at(x)) ); } 
+            vector<unsigned int>::iterator it = find(tmpLocal.begin(), tmpLocal.end(), j);     
+            if(it != tmpLocal.end()) {
+                unsigned int index = *it; 
+                tmpLocal.erase(it);
+                tmp.erase(tmp.begin() + index); 
+                /*cout << "TMP: " << endl; 
+                for(unsigned int i = 0; i < tmp.at(0).size(); i++) { 
+                    for(unsigned int j = 0; j < tmp.size(); j++) { 
+                        cout << tmp.at(j).at(i) << " "; 
+                    } 
+                    cout << endl; 
+                } */
+                cout << "Testing "; 
+                for(unsigned int i = 0; i < tmpLocal.size(); i++) {cout << tmpLocal.at(i) << " "; } 
+                accuracy = validator(tmp); 
+                cout << "Accuracy: " << accuracy << endl; 
+                if(accuracy > localmax) { localmax = accuracy; tmpMax = tmpLocal; } 
+            }   
+        } 
+        localBest = tmpMax; 
+        cout << "The best feature set is: "; 
+        for(unsigned int i = 0; i < localBest.size(); i++) { cout << localBest.at(i) << " "; } 
+        cout << "with an accuracy of " << localmax << "%" << endl << endl; 
+        
+        if(localmax > max) { bestFeatures = localBest; max = localmax; }
+        else if(localmax < max) { cout << "Warning! Accuracy is decreasing. Continuing check in case of local maxima." << endl; } 
+    } 
+    cout << endl << "Searched finished." << endl; 
+    cout << "The final best feature set is: "; 
+    for(unsigned int i = 0; i < bestFeatures.size(); i++) { cout << bestFeatures.at(i) << " "; } 
+    cout << "with an accuracy of " << max << "%" << endl; 
+} 
+
 int main() {
     
     //GUI
@@ -134,6 +183,7 @@ int main() {
 	cout << "Running nearest neighbor with all " << numFeatures << " features, using \"leaving-one-out\" evaluation, I get an accuracy of "; 
 	cout << validator(training_set) << "%" << endl; 
 	
-	if(algorithm == 1) { forward_Selection(training_set, numFeatures); }  
+	if(algorithm == "1") { forward_Selection(training_set, numFeatures); }  
+	else { backward_Selection(training_set, numFeatures); } 
     return 0; 
 } 
