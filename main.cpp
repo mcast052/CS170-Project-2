@@ -1,8 +1,6 @@
 /* 
-
 Melissa Castillo, mcast052, 861157259 
 CS170 Project 2: Nearest Neighbor Classifier using Forward and Backward Selection
-
 */
 
 #include <iostream> 
@@ -16,13 +14,13 @@ CS170 Project 2: Nearest Neighbor Classifier using Forward and Backward Selectio
 
 using namespace std; 
 
-long double nearest_neighbor(vector<long double> p, vector< vector< long double> > t) { 
-    long double minDis = 0.0; long double classification = 0.0; 
+int nearest_neighbor(vector<long double> p, vector< vector< long double> > t) { 
+    long double minDis = 0.0; int classification = p.at(0); 
     for(unsigned int i = 0; i < t.at(0).size(); i++) { 
         long double dis = 0.0; 
         for(unsigned int j = 1; j < t.size(); j++) { dis += pow(t.at(j).at(i) - p.at(j), 2); } 
         if(i == 0) {minDis = dis;} 
-        else if(dis <= minDis) { minDis = dis; classification = t.at(0).at(i); } 
+        else if(dis < minDis) { minDis = dis; classification = (int)t.at(0).at(i); }
     } 
     return classification; 
 } 
@@ -38,11 +36,11 @@ float validator(vector< vector< long double> > features) {
             tmp.erase(tmp.begin() + i);
             instance_subset.push_back(tmp); 
         }
-        if( nearest_neighbor(instanceCheck, instance_subset) == instanceCheck.at(0)) { numCorrect++;}
+        //cout << (int)nearest_neighbor(instanceCheck, instance_subset) << " == " << (int)instanceCheck.at(0) << endl; 
+        if( (int)nearest_neighbor(instanceCheck, instance_subset) == (int)instanceCheck.at(0)) { numCorrect++; }
         instance_subset.clear(); 
     	instanceCheck.clear();
     } 
-
     return ((float)numCorrect / (float)features.at(0).size()) * 100; 
 } 
 
@@ -92,33 +90,27 @@ void backward_Selection(vector<vector<long double>> training_set, unsigned int n
     vector<unsigned int> localBest = bestFeatures; 
     float accuracy, max = 0.0; 
     
-    for(unsigned int i = 1; i <= numFeatures; i++) {
+    for(unsigned int i = 1; i < numFeatures; i++) {
         float localmax = 0.0; 
         vector<unsigned int> tmpMax; 
-        for(unsigned int j = 1; j <= numFeatures; j++) {
+        for(unsigned int j = 0; j <= numFeatures; j++) {
             vector<vector<long double>> tmp; 
             vector<unsigned int> tmpLocal; 
             tmp.push_back(training_set.at(0)); 
             tmpLocal = localBest; 
             
-            for(unsigned int x = 0; x < tmpLocal.size(); x++) { tmp.push_back( training_set.at(tmpLocal.at(x)) ); } 
+            for(unsigned int x = 0; x < localBest.size(); x++) { 
+                tmp.push_back( training_set.at(localBest.at(x)) ); } 
             vector<unsigned int>::iterator it = find(tmpLocal.begin(), tmpLocal.end(), j);     
             if(it != tmpLocal.end()) {
-                unsigned int index = *it; 
+                unsigned int index = it - tmpLocal.begin() + 1; 
                 tmpLocal.erase(it);
                 tmp.erase(tmp.begin() + index); 
-                /*cout << "TMP: " << endl; 
-                for(unsigned int i = 0; i < tmp.at(0).size(); i++) { 
-                    for(unsigned int j = 0; j < tmp.size(); j++) { 
-                        cout << tmp.at(j).at(i) << " "; 
-                    } 
-                    cout << endl; 
-                } */
                 cout << "Testing "; 
                 for(unsigned int i = 0; i < tmpLocal.size(); i++) {cout << tmpLocal.at(i) << " "; } 
                 accuracy = validator(tmp); 
                 cout << "Accuracy: " << accuracy << endl; 
-                if(accuracy > localmax) { localmax = accuracy; tmpMax = tmpLocal; } 
+                if(accuracy >= localmax) { localmax = accuracy; tmpMax = tmpLocal; } 
             }   
         } 
         localBest = tmpMax; 
