@@ -45,7 +45,7 @@ float validator(vector< vector< long double> > features) {
 } 
 
 void forward_Selection(vector<vector<long double>> training_set, unsigned int numFeatures) { 
-    vector<unsigned int> bestFeatures;
+    vector<unsigned int> bestFeatures; 
     vector<unsigned int> localBest;  
     float accuracy, max = 0.0;  
     
@@ -58,7 +58,7 @@ void forward_Selection(vector<vector<long double>> training_set, unsigned int nu
             tmp.push_back(training_set.at(0)); 
             tmpLocal = localBest; 
             
-            for(unsigned int x = 0; x < bestFeatures.size(); x++) { tmp.push_back( training_set.at(bestFeatures.at(x)) ); } 
+            for(unsigned int x = 0; x < tmpLocal.size(); x++) { tmp.push_back( training_set.at(tmpLocal.at(x)) ); } 
                 
             if(find(tmpLocal.begin(), tmpLocal.end(), j) == tmpLocal.end()) {
                 tmp.push_back(training_set.at(j)); 
@@ -67,7 +67,7 @@ void forward_Selection(vector<vector<long double>> training_set, unsigned int nu
                 for(unsigned int i = 0; i < tmpLocal.size(); i++) {cout << tmpLocal.at(i) << " "; } 
                 accuracy = validator(tmp); 
                 cout << "Accuracy: " << accuracy << endl; 
-                if(accuracy > localmax) { localmax = accuracy; tmpMax = tmpLocal; } 
+                if(accuracy > localmax) { localmax = accuracy; tmpMax = tmpLocal; }
             }   
         } 
         localBest = tmpMax; 
@@ -75,7 +75,7 @@ void forward_Selection(vector<vector<long double>> training_set, unsigned int nu
         for(unsigned int i = 0; i < localBest.size(); i++) { cout << localBest.at(i) << " "; } 
         cout << "with an accuracy of " << localmax << "%" << endl << endl; 
         
-        if(localmax > max) { bestFeatures = localBest; max = localmax; }
+        if(localmax > max) { bestFeatures = localBest; max = localmax; localBest = bestFeatures; }
         else if(localmax < max) { cout << "Warning! Accuracy is decreasing. Continuing check in case of local maxima." << endl; } 
     } 
     cout << endl << "Searched finished." << endl; 
